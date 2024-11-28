@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Permutation Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+        .email-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .email-list li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Email Permutation Generator</h2>
+        
+        <!-- Manual Input Form -->
+        <div class="input-group">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" placeholder="Enter first name">
+            
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" placeholder="Enter last name">
+            
+            <label for="domain">Domain</label>
+            <input type="text" id="domain" placeholder="Enter domain (e.g., yahoo.com)">
+            
+            <button id="generateBtn" onclick="generateEmails()">Generate Emails</button>
+        </div>
+
+        <!-- CSV Upload -->
+        <div class="input-group">
+            <label for="csvUpload">Upload CSV File</label>
+            <input type="file" id="csvUpload" accept=".csv" onchange="processCSV(event)">
+        </div>
+
+        <!-- Results -->
+        <div class="results" id="results">
+            <h3>Generated Emails</h3>
+            <ul id="emailList" class="email-list"></ul>
+        </div>
+    </div>
+
+    <script>
+        // Function to generate email permutations for manual input
+        function generateEmails() {
+            const firstName = document.getElementById('firstName').value.trim().toLowerCase();
+            const lastName = document.getElementById('lastName').value.trim().toLowerCase();
+            const domain = document.getElementById('domain').value.trim().toLowerCase();
+            
+            if (!firstName || !lastName || !domain) {
+                alert("Please fill in all fields");
+                return;
+            }
+            
+            const emailList = document.getElementById('emailList');
+            emailList.innerHTML = ''; // Clear previous results
+
+            const emails = [
+                `${firstName}.${lastName}@${domain}`,
+                `${firstName}@${domain}`,
+                `${firstName[0]}.${lastName}@${domain}`,
+                `${lastName}.${firstName}@${domain}`,
+                `${firstName}${lastName[0]}@${domain}`,
+                `${firstName[0]}${lastName}@${domain}`
+            ];
+
+            emails.forEach(email => {
+                const li = document.createElement('li');
+                li.textContent = email;
+                emailList.appendChild(li);
+            });
+        }
+
+        // Function to process CSV and generate email permutations
+        function processCSV(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split('\n');
+                const emailList = document.getElementById('emailList');
+                emailList.innerHTML = ''; // Clear previous results
+
+                lines.forEach(line => {
+                    const [firstName, lastName, domain] = line.split(',').map(item => item.trim().toLowerCase());
+                    if (firstName && lastName && domain) {
+                        const emails = [
+                            `${firstName}.${lastName}@${domain}`,
+                            `${firstName}@${domain}`,
+                            `${firstName[0]}.${lastName}@${domain}`,
+                            `${lastName}.${firstName}@${domain}`,
+                            `${firstName}${lastName[0]}@${domain}`,
+                            `${firstName[0]}${lastName}@${domain}`
+                        ];
+
+                        emails.forEach(email => {
+                            const li = document.createElement('li');
+                            li.textContent = email;
+                            emailList.appendChild(li);
+                        });
+                    }
+                });
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
