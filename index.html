@@ -61,6 +61,11 @@
         <!-- CSV Upload -->
         <div class="input-group">
             <label for="csvUpload">Upload CSV File</label>
+            <p>Please upload a CSV without a header. Each row should have: First Name, Last Name, Domain. Example:</p>
+            <ul>
+                <li>John, Doe, example.com</li>
+                <li>Jane, Smith, yahoo.com</li>
+            </ul>
             <input type="file" id="csvUpload" accept=".csv" onchange="processCSV(event)">
         </div>
 
@@ -76,13 +81,19 @@
         function generateEmails() {
             const firstName = document.getElementById('firstName').value.trim().toLowerCase();
             const lastName = document.getElementById('lastName').value.trim().toLowerCase();
-            const domain = document.getElementById('domain').value.trim().toLowerCase();
+            let domain = document.getElementById('domain').value.trim().toLowerCase();
             
             if (!firstName || !lastName || !domain) {
                 alert("Please fill in all fields");
                 return;
             }
-            
+
+            // Check domain for invalid prefixes
+            if (domain.startsWith('http://') || domain.startsWith('https://')) {
+                alert("Please enter a valid domain without http:// or https://");
+                return;
+            }
+
             const emailList = document.getElementById('emailList');
             emailList.innerHTML = ''; // Clear previous results
 
@@ -116,22 +127,32 @@
 
                 lines.forEach(line => {
                     const [firstName, lastName, domain] = line.split(',').map(item => item.trim().toLowerCase());
-                    if (firstName && lastName && domain) {
-                        const emails = [
-                            `${firstName}.${lastName}@${domain}`,
-                            `${firstName}@${domain}`,
-                            `${firstName[0]}.${lastName}@${domain}`,
-                            `${lastName}.${firstName}@${domain}`,
-                            `${firstName}${lastName[0]}@${domain}`,
-                            `${firstName[0]}${lastName}@${domain}`
-                        ];
-
-                        emails.forEach(email => {
-                            const li = document.createElement('li');
-                            li.textContent = email;
-                            emailList.appendChild(li);
-                        });
+                    
+                    if (!firstName || !lastName || !domain) {
+                        alert("Invalid CSV format. Please make sure each row has First Name, Last Name, and Domain.");
+                        return;
                     }
+
+                    // Check domain for invalid prefixes
+                    if (domain.startsWith('http://') || domain.startsWith('https://')) {
+                        alert(`Invalid domain for ${firstName} ${lastName}. Please enter a valid domain without http:// or https://`);
+                        return;
+                    }
+
+                    const emails = [
+                        `${firstName}.${lastName}@${domain}`,
+                        `${firstName}@${domain}`,
+                        `${firstName[0]}.${lastName}@${domain}`,
+                        `${lastName}.${firstName}@${domain}`,
+                        `${firstName}${lastName[0]}@${domain}`,
+                        `${firstName[0]}${lastName}@${domain}`
+                    ];
+
+                    emails.forEach(email => {
+                        const li = document.createElement('li');
+                        li.textContent = email;
+                        emailList.appendChild(li);
+                    });
                 });
             };
             reader.readAsText(file);
